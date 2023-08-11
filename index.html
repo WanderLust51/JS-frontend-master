@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Ejemplo de uso de XMLHttpRequest</title>
+</head>
+<body>
+    <div id="search">
+        <h1>Nombre de la pelicula</h1>
+        <form action="" onsubmit="event.preventDefault()">
+            <input type="text" id="texto" />
+            <input id="request" type="submit" value="Buscar">
+        </form>
+        <button id="cargar">Cargar lista</button>
+    </div>
+    <img id="loading" src="loading.gif" style="display: none" />
+    <div id="resultado"></div>
+</body>
+<script src="jquery-3.7.0.min.js"></script>
+
+<script>
+    var descargado = false;
+
+    $.getScript("https://cdn.jsdelivr.net/npm/sweetalert2@11",function(){
+        console.log("se descargo el js de sweet alert")
+        descargado = true;
+    })
+
+    $(document).ajaxError(function(){
+        // significa que sweet alert ya se descargo
+        if (descargado){
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            })
+
+            Toast.fire({
+            icon: 'error',
+            title: 'Error en la solicitud'
+            })
+        }
+    })
+
+    cargar.onclick = function(){
+        $("#loading").show();
+        $("#resultado").hide();
+        $("#resultado").load("listado.html",function(){
+            console.log("se ejecuto")
+            $("#loading").hide();
+            $("#resultado").show();
+        })
+    }
+
+    request.onclick = function(){
+        $("#loading").show();
+        $("#resultado").hide();
+        $.getJSON("http://www.omdbapi.com/?apikey=7a711b58&s="+texto.value,
+            function(resp){
+                mostrarResultados(resp)
+                console.log(resp)
+            }) 
+            .fail(function() {
+                resultado.innerText = "Error al procesar los datos"
+            }) 
+            .always(function() {
+                $("#loading").hide();
+                $("#resultado").show();
+            });
+    }
+
+    function mostrarResultados(respuesta){
+        resultado.innerText = ""
+        if (respuesta.Response == "True"){
+            // se recorre el arreglo que contiene la respuesta que retorna el api
+            for (i=0;i<respuesta.Search.length;i++){
+                img = "<img src='"+respuesta.Search[i].Poster+
+                      "' width='150' height='150' />"
+                item = `<p>${img+respuesta.Search[i].Title} (${respuesta.Search[i].Year})</p>`;
+                $("#resultado").append(item)
+            }
+            $("#resultado").append("<p>"+respuesta.totalResults + " resultados </p>")
+        }else
+            resultado.innerText = "No hay coincidencias"
+    }
+
+</script>
+
+<style>
+
+    body{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    #search{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 2rem;
+        & > *{
+            margin: 0.5rem 0;
+        }
+        & > form > input{
+            padding: 0.5rem;
+        }
+    }
+
+    #resultado{
+        & > p{
+            display: flex;
+            align-items: center;
+
+            & > img{
+                margin-right: 1rem;
+            }
+        }
+    }
+</style>
+</html>

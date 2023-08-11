@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script src="jquery-3.7.0.min.js"></script>
+</head>
+<body>
+    
+    <button onclick="buscarCadi()">BOTÓN</button>
+
+    <div id="result"></div>
+
+    <div id="details"></div>
+
+
+</body>
+
+<script>
+
+    function buscarCadi(){
+        fetch('https://api.cadif1.com/curso').then(function(response){
+            if (response.ok){
+                return response.json()
+            }else{
+                console.log('No can do boy');
+            }
+        }).then(function(json){
+            loadContent(json.cursos);
+        }).catch(function(error){
+            console.log('MANO NO DA NO DAAAA', error);
+        })
+    }
+
+    function buscarDetalle(id){
+        fetch(`https://api.cadif1.com/curso/${id}`).then(function(response){
+            if (response.ok){
+                return response.json()
+            }
+        }).then(function(json){
+            loadDetails(json);
+        })
+    }
+
+    function loadContent(cursos){
+        for (e in cursos){
+
+            $('#result').append(`
+                <p id="${cursos[e].id}" onclick="buscarDetalle(${cursos[e].id}); event.stopPropagation()"><b>${cursos[e].codigo}</b> ${cursos[e].nombre}</p>
+            `);
+
+        }
+    }
+
+    function loadDetails(details){
+        console.log(details.curso)
+        let content = `
+        <h3>${details.curso.nombre}</h3>
+        <i>${details.curso.areaestudio}</i>
+        <p>${details.curso.objetivoresumido}</p>
+        `
+
+        $('#details').text('')
+        $('#details').append(content)
+
+    }
+
+</script>
+
+<style>
+    body{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    #result{
+        display: flex;
+        flex-direction: column;
+        width: 50%;
+        justify-content: center;
+
+        & > p > b{
+            display: inline-flex;
+            justify-content: center;
+            background-color: rgb(255, 102, 0);
+            color: white;
+            padding: 3px;
+            width: 2.8rem;
+            border-radius: 3px;
+            margin-right: 1rem;
+        }
+    }
+
+    #details{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: fixed;
+        right: 1rem;
+        height: 15rem;
+        width: 19rem;
+        background-color: rgba(180, 180, 180, 0.281);
+
+        & > h3{
+            display: flex;
+            justify-content: center;
+            font-weight: 500;
+            margin-bottom: 0;
+        }
+        & > i{
+            font-size: 0.9rem;
+            font-weight: lighter;
+        }
+        & > p{
+            display: flex;
+            justify-content: center;
+            margin: 1rem;
+            font-size: 0.9rem;
+            font-weight: lighter;
+        }
+
+    }
+</style>
+
+</html>
