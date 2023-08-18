@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="jquery-3.7.0.min.js"></script>
+</head>
+<body>
+    
+    <select name="" id="paises">
+        <!-- <option value=""></option> -->
+    </select>
+
+    <main>
+        <form action="" id="userForm">
+            <span>
+                <p>Nombre</p>
+                <input name="name" type="text" required>
+            </span>
+            <span>
+                <p>Usuario</p>
+                <input name="username" type="text" required>
+            </span>
+            <span>
+                <p>correo</p>
+                <input name="email" type="email" required>
+            </span>
+            <span>
+                <p>contraseña</p>
+                <input name="password" type="password" required>
+            </span>
+            <input type="button" value="Registrar" onclick="event.preventDefault(); registrar(userForm)">
+        </form>
+    </main>
+
+
+</body>
+
+<script>
+
+    $(document).ready(function(){
+
+        fetch('https://core.kpimetro.com/desarrollo/pais',{
+            headers: {
+                "CLIENT_ID":"3f7f8c73a542c5e3601e279682c6e5dafcef6f5a"
+            }
+        }).then(function(response){
+            if (response.ok){
+                return response.json()
+            }
+        }).then(function(json){
+            console.log(json)
+            añadirPaises(json.data)
+        })
+
+    })
+
+    function registrar(form){
+        let datos = {
+            'username': form.username.value,
+            'password': form.password.value,
+            'nombre': form.name.value
+        }
+        console.log(datos)
+
+        fetch('https://core.kpimetro.com/desarrollo/register',{
+            method: 'POST',
+            body: JSON.stringify(datos),
+            headers: {
+               'conntent-type':'application/json',
+                'CLIENT_ID':"3f7f8c73a542c5e3601e279682c6e5dafcef6f5a"
+            }
+        }).then(function(response){
+            console.log(response)
+        }).catch(function(error){
+            console.log(error)
+        })
+    }
+
+    function añadirPaises(data){
+        for (e in data){
+            $('#paises').append(`<option value="">${data[e].nombre}</option>`)
+        }
+    }
+
+</script>
+
+<style>
+
+    main{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+    }
+    #userForm{
+        width: 20%;
+        display: flex;
+        flex-direction: column;
+        & > *{
+            display: flex;
+            align-items: center;
+            height: 1.5rem;
+            margin: 5px 0;
+            & > *{
+                height: 1.5rem;
+                margin: 0 10px;
+            }
+        }
+    }
+
+</style>
+
+</html>
